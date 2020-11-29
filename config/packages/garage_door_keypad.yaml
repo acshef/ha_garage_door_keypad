@@ -1,0 +1,67 @@
+api: # I think "webhook:" requires this to be present too?
+webhook:
+
+automation:
+  - alias: Sanitize garage door code
+    id: sanitize_garage_door_code
+    initial_state: True
+    trigger:
+      platform: state
+      entity_id: input_text.garage_door_code
+    condition:
+      condition: template
+      value_template: "{{ states('input_text.garage_door_code') != (states('input_text.garage_door_code') | map('int', '') | join) }}"
+    action:
+      - service: input_text.set_value
+        entity_id: input_text.garage_door_code
+        data:
+          value: "{{ states('input_text.garage_door_code') | map('int', '') | join }}"
+  - alias: Garage door code webhook
+    id: garage_door_code_webhook
+    mode: parallel
+    trigger:
+      platform: webhook
+      webhook_id: !secret garage_door_code_webhook_id
+    condition:
+      condition: state
+      entity_id: timer.until_garage_door_code_can_be_used
+      state: idle
+    action:
+      - service: timer.start
+        entity_id: timer.until_garage_door_code_can_be_used
+      - choose:
+          - conditions:
+              condition: template
+              value_template: "{{ (states('input_text.garage_door_code') | trim) == '' }}"
+            sequence:
+              - service: notify.notify
+                data:
+                  title: Garage Door Code
+                  message: "✖ Code entered at {{ as_timestamp(now()) | timestamp_custom('%I:%M %p') | trim('0') }} but the garage door code is disabled"
+          - conditions:
+              condition: template
+              value_template: "{{ (trigger.json|default({})).code == (states('input_text.garage_door_code') | trim)}}"
+            sequence:
+              - service: notify.notify
+                data:
+                  title: Garage Door Code
+                  message: "✔ Correct code entered at {{ as_timestamp(now()) | timestamp_custom('%I:%M %p') | trim('0') }}"
+              - service: "WEBHOOK_ACTION: UPDATE THIS TO THE SERVICE OF YOUR CHOOSING"
+        default:
+          - service: notify.notify
+            data:
+              title: Garage Door Code
+              message: "❌ Wrong code entered at {{ as_timestamp(now()) | timestamp_custom('%I:%M %p') | trim('0') }}"
+
+input_text:
+  garage_door_code:
+    name: Garage Door Code
+    icon: mdi:form-textbox-password
+    pattern: '\d*'
+    min: 0
+    max: 10
+    mode: password
+
+timer:
+  until_garage_door_code_can_be_used:
+    duration: 5 # seconds
