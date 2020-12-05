@@ -74,7 +74,7 @@ submitButton.addEventListener("click", () => {
 
 	submitButton.innerHTML = "<div class='spinner'></div>"
 
-	const promise = fetch(`/api/webhooks/${WEBHOOK_ID}`, {
+	const promise = fetch(`/api/webhook/${WEBHOOK_ID}`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
