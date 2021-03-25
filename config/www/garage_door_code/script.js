@@ -79,7 +79,7 @@ submitButton.addEventListener("click", () => {
 		headers: {
 			"Content-Type": "application/json",
 		},
-		body: JSON.stringify({code: code}),
+		body: JSON.stringify({ code: code }),
 	})
 
 	promise
