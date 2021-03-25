@@ -24,4 +24,4 @@ This project allows Home Assistant to host a publically exposed page allowing so
 * The interface features dark/light mode
 * In your Home Assistant instance, you can modify the keypad code via `input_text.garage_door_code`. If you set it to a blank value (empty string), the system will be "disabled" and no codes will work.
 * The `timer.until_garage_door_code_can_be_used` controls a server-side cooldown (so that nobody can rapidly brute-force the codes) &mdash; if you change its duration, make sure to change the `COOLDOWN` constant in `script.js`
-* Because the webhook ID is placed in the URL, it is **PUBLICALLY EXPOSED TO ANYONE THAT HAS ACCESS TO THE NFC TAG!** The automation doesn't allow you to perform any other actions with the webhook ID, but make sure you don't use it in place of other webhooks that expose other services.
+* Because the webhook ID is placed in the URL, it is **PUBLICALLY EXPOSED TO ANYONE THAT HAS ACCESS TO THE NFC TAG!** The automation doesn't allow you to perform any other actions with the webhook ID, as long as you make sure you don't use it in place of other webhooks that expose other services.
